@@ -5,6 +5,13 @@ import Dashboard from "../dashboard/Dashboard";
 import NotFound from "./NotFound";
 import { today } from "../utils/date-time";
 
+import FormReservationCreate from "./FormReservationCreate";
+import FormReservationUpdate from "./FormReservationUpdate";
+import ReservationSearch from "./ReservationSearch";
+import FormSeatAssign from "./FormSeatAssign";
+import FormTablesCreate from "./FormTablesCreate";
+
+
 /**
  * Defines all the routes for the application.
  *
@@ -18,9 +25,31 @@ function Routes() {
       <Route exact={true} path="/">
         <Redirect to={"/dashboard"} />
       </Route>
+
+      <Route exact={true} path="/reservations/new">
+        <FormReservationCreate />
+      </Route>
+
+      <Route exact={true} path="/reservations/:reservationId/edit">
+        <FormReservationUpdate />
+      </Route>
+
+      <Route exact={true} path="/reservations/:reservationId/seat">
+        <FormSeatAssign />
+      </Route>
+
+      <Route exact={true} path="/search">
+        <ReservationSearch />
+      </Route>
+
       <Route exact={true} path="/reservations">
         <Redirect to={"/dashboard"} />
       </Route>
+
+      <Route exact={true} path="/tables/new">
+        <FormTablesCreate />
+      </Route>
+
       <Route path="/dashboard">
         <Dashboard date={today()} />
       </Route>

@@ -52,6 +52,147 @@ async function fetchJson(url, options, onCancel) {
   }
 }
 
+
+
+
+/**
+ * Retrieves all existing tables
+ * @returns {Promise<[table]>}
+ *  a promise that resolves to a possibly empty array of tables saved in the database.
+ */
+export async function listTables(signal) {
+  const url = new URL(`${API_BASE_URL}/tables`);
+  return await fetchJson(url, { headers, signal }, []);
+}
+
+export async function readReservation(reservationId, signal) {
+  const url = new URL(`${API_BASE_URL}/reservations/${reservationId}`);
+  return await fetchJson(url, { headers, signal }, []);
+}
+
+export async function updateReservation(reservationId, data) {
+  const url = `${API_BASE_URL}/reservations/${reservationId}`;
+  const options = {
+    method: "PUT",
+    headers,
+    body: JSON.stringify({ data }),
+  };
+  return await fetchJson(url, options, {});
+}
+
+
+export async function createReservation(reservation, signal) {
+  reservation = formatReservationTime(reservation);
+  reservation = formatReservationDate(reservation);
+  const url = `${API_BASE_URL}/reservations/new`;
+  const options = {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ data: reservation }), // Wrap the reservation data inside a 'data' key
+    signal,
+  };
+  return await fetchJson(url, options, {});
+}
+
+export async function createTable(table, signal) {
+  const url = `${API_BASE_URL}/tables/new`;
+  const options = {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ data: table }),
+    signal,
+  };
+  return await fetchJson(url, options, {});
+}
+
+
+export async function assignTableToReservation(tableId, reservationId) {
+  const url = `${API_BASE_URL}/tables/${tableId}/seat/`;
+  const options = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ data: { reservation_id: reservationId } })
+  };
+  
+  const response = await fetch(url, options);
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+
+  // After successfully assigning the reservation to a table,
+  // set the reservation status to "seated".
+  await setReservationStatus(reservationId, "seated");
+  
+  return await response.json();
+}
+
+export async function setReservationStatus(reservationId, status) {
+  const url = `${API_BASE_URL}/reservations/${reservationId}/status`;
+  const options = {
+      method: "PUT",
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ data: { status: status } })
+  };
+  
+  const response = await fetch(url, options);
+  if (!response.ok) {
+    throw new Error('Failed to set reservation status');
+  }
+}
+
+
+export async function resetTable(tableId, signal) {
+  const url = `${API_BASE_URL}/tables/${tableId}/seat`;
+  const options = {
+      method: "DELETE",
+      headers,
+      signal,
+  };
+  return await fetchJson(url, options, {});
+}
+
+export async function reservationStatus(reservationId, newStatus, signal) {
+  const url = `${API_BASE_URL}/reservations/${reservationId}/status`;
+  const options = {
+      method: "PUT",
+      headers,
+      body: JSON.stringify({ data: { status: newStatus } }),  // Adding the status to the request body
+      signal,
+  };
+  return await fetchJson(url, options, {});
+}
+
+export async function fetchTables(signal) {
+  const url = `${API_BASE_URL}/tables`;
+  const options = {
+      method: "GET",
+      headers,
+      signal,
+  };
+  return await fetchJson(url, options, {});
+}
+
+export async function fetchReservation(reservationId) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/reservations/${reservationId}`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.data;
+
+  } catch (error) {
+    console.error('Fetch reservation error:', error);
+    // Handle the error as needed
+  }
+}
+
 /**
  * Retrieves all existing reservation.
  * @returns {Promise<[reservation]>}
@@ -60,10 +201,29 @@ async function fetchJson(url, options, onCancel) {
 
 export async function listReservations(params, signal) {
   const url = new URL(`${API_BASE_URL}/reservations`);
+  
   Object.entries(params).forEach(([key, value]) =>
     url.searchParams.append(key, value.toString())
   );
+  
   return await fetchJson(url, { headers, signal }, [])
     .then(formatReservationDate)
     .then(formatReservationTime);
+}
+
+
+export async function searchReservation(mobile_number, signal) {
+  const url = new URL(`${API_BASE_URL}/reservations`);
+  url.searchParams.append("mobile_number", mobile_number); // Append the mobile_number as a query parameter
+  
+  // Make the fetch request
+  const response = await fetch(url, { method: "GET", headers, signal });
+
+  // Handle non-2xx status codes
+  if (!response.ok) {
+      throw new Error(`API call failed: ${response.statusText}`);
+  }
+
+  // Return the parsed JSON
+  return await response.json();
 }
