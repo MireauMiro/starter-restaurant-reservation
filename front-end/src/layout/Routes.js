@@ -26,6 +26,10 @@ function Routes() {
         <Redirect to={"/dashboard"} />
       </Route>
 
+      <Route exact={true} path="/dashboard">
+        <Dashboard />
+      </Route>
+
       <Route exact={true} path="/reservations/new">
         <FormReservationCreate />
       </Route>
