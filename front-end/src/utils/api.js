@@ -84,7 +84,7 @@ export async function updateReservation(reservationId, data) {
 export async function createReservation(reservation, signal) {
   reservation = formatReservationTime(reservation);
   reservation = formatReservationDate(reservation);
-  const url = `${API_BASE_URL}/reservations/new`;
+  const url = `${API_BASE_URL}/reservations`;
   const options = {
     method: "POST",
     headers,

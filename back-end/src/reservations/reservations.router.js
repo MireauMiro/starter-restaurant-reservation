@@ -2,8 +2,8 @@ const router = require("express").Router({ mergeParams: true });
 const controller = require("./reservations.controller");
 const methodNotAllowed = require("../errors/methodNotAllowed");
 
-router.route("/").get(controller.search).all(methodNotAllowed);
-router.route("/new").post(controller.create).all(methodNotAllowed);
+router.route("/").get(controller.search).post(controller.create).all(methodNotAllowed);
+router.route("/new").all(methodNotAllowed);
 router.route("/:reservationId").get(controller.fetch).put(controller.update).all(methodNotAllowed);
 router.route("/:reservationId/seat").post(controller.create).all(methodNotAllowed);
 router.route("/:reservationId/status").put(controller.updateStatus).all(methodNotAllowed);

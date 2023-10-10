@@ -23,7 +23,7 @@ function validateReservationDateAndTime(req, res, next) {
   if (reservationDateTime.weekday === 2) { // .weekday gives 1 for Monday, 2 for Tuesday, etc.
       return next({
           status: 400,
-          message: "Reservations are not allowed on Tuesdays."
+          message: "closed"
       });
   }
 
@@ -68,7 +68,7 @@ async function reservationExists(req, res, next) {
     res.locals.reservation = reservation;
     return next();
   }
-  next({ status: 404, message: `Reservation not found.` });
+  next({ status: 404, message: req.params.reservationId });
 }
 
 async function create(req, res) {
@@ -84,6 +84,9 @@ async function list(req, res) {
 async function fetch(req, res) {
   const reservationId = req.params.reservationId;
   const data = await reservationsService.fetch(reservationId);
+  if (!data) { // checks if data is null or undefined
+    return res.status(404).json({ error: "Reservation not found" });
+  }
   res.json({ data });
 }
 
