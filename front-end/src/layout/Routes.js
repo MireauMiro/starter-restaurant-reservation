@@ -26,10 +26,6 @@ function Routes() {
         <Redirect to={"/dashboard"} />
       </Route>
 
-      <Route exact={true} path="/dashboard">
-        <Dashboard />
-      </Route>
-
       <Route exact={true} path="/reservations/new">
         <FormReservationCreate />
       </Route>
@@ -54,9 +50,10 @@ function Routes() {
         <FormTablesCreate />
       </Route>
 
-      <Route path="/dashboard">
+      <Route exact={true} path="/dashboard">
         <Dashboard date={today()} />
       </Route>
+
       <Route>
         <NotFound />
       </Route>
